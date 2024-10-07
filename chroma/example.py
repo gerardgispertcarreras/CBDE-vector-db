@@ -7,10 +7,11 @@ def find_similar_sentences_with_chroma(parquet_file):
     chroma_client = chromadb.Client()
 
     # Crea o carga una colección en ChromaDB para almacenar los vectores
+    # Define la métrica de distancia aquí si es posible
     collection = chroma_client.get_or_create_collection(name="sentence_collection")
 
-    # Cargar el archivo Parquet y seleccionar 10 oraciones diferentes
-    df = pd.read_parquet(parquet_file)
+    # Cargar solo las primeras 10,000 filas del archivo Parquet
+    df = pd.read_parquet(parquet_file).head(1000)
     seed = 42  # Para reproducibilidad
     selected_sentences = df['text'].drop_duplicates().sample(n=10, random_state=seed).reset_index(drop=True)
 
@@ -32,29 +33,19 @@ def find_similar_sentences_with_chroma(parquet_file):
     # Buscar las dos oraciones más similares para cada una de las 10 seleccionadas
     results = []
     for sentence in selected_sentences:
-        # Usar 'cosine' para el primer cálculo
+        # Obtener las oraciones más similares usando la métrica por defecto (probablemente 'cosine')
         cosine_result = collection.query(
-            query_embeddings=[sentence],
-            n_results=3,  # El primero será la misma oración, y los otros dos serán los más similares
-            distance_metric='cosine'
-        )
-        
-        # Usar 'euclidean' para el segundo cálculo
-        euclidean_result = collection.query(
-            query_embeddings=[sentence],
-            n_results=3,
-            distance_metric='euclidean'
+            query_texts=[sentence],
+            n_results=3  # El primero será la misma oración, y los otros dos serán los más similares
         )
 
         # Extraer las dos oraciones más similares (después de sí misma)
-        cosine_top_2 = [doc['content'] for doc in cosine_result['documents'][1:3]]
-        euclidean_top_2 = [doc['content'] for doc in euclidean_result['documents'][1:3]]
+        cosine_top_2 = [doc for doc in cosine_result['documents'][1:3]]
 
         # Guardar resultados
         results.append({
             "original_sentence": sentence,
-            "cosine_top_2": cosine_top_2,
-            "euclidean_top_2": euclidean_top_2
+            "cosine_top_2": cosine_top_2
         })
 
     # Mostrar los resultados
@@ -62,9 +53,6 @@ def find_similar_sentences_with_chroma(parquet_file):
         print("Original Sentence: ", result["original_sentence"])
         print("  - Top 2 Similar Sentences (Cosine Distance):")
         for idx, sim_sentence in enumerate(result["cosine_top_2"], start=1):
-            print(f"    {idx}: {sim_sentence}")
-        print("  - Top 2 Similar Sentences (Euclidean Distance):")
-        for idx, sim_sentence in enumerate(result["euclidean_top_2"], start=1):
             print(f"    {idx}: {sim_sentence}")
         print("\n")
 
