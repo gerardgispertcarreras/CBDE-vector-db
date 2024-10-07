@@ -1,9 +1,13 @@
 import sys
 from connect import connect
 from postgres.script_1 import script_1
+from postgres.script_2 import script_2
+from postgres.script_3 import script_3
 
 SCRIPTS = {
     "sql-script-1": script_1,
+    "sql-script-2": script_2,
+    "sql-script-3": script_3,
 }
 
 

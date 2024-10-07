@@ -7,7 +7,7 @@ def script_1(conn):
 
     # Seed for reproducibility.
     seed = 42
-    sub_df = df.sample(n=20000, random_state=seed).reset_index()
+    sub_df = df.sample(n=100000, random_state=seed).reset_index()
     print("Script 1 executed successfully.")
 
     # Pujar-ho a la DB.
@@ -20,25 +20,22 @@ def script_1(conn):
     create_table_query = """
     CREATE TABLE sentences (
         id UUID PRIMARY KEY,
-        sentence TEXT
+        sentence TEXT,
+        embedding FLOAT[]
     );
     """
     # Execute the query
     cur.execute(create_table_query)
 
     insert_query = """
-    INSERT INTO sentences VALUES (%s, %s);
+    INSERT INTO sentences VALUES (%s, %s, NULL);
     """
     for _, row in sub_df.iterrows():
         id = uuid.uuid4()
-        print(id)
         cur.execute(insert_query, (str(id), row["text"]))
 
-    # Commit the changes to the database
     conn.commit()
 
-    # Close the cursor and connection
     cur.close()
-    conn.close()
 
     print("Table created successfully!")
