@@ -44,32 +44,41 @@ def script_P2(conn) -> None:
     with conn.cursor() as cur:
         for sentence, sentence_distance in sentences_distances.items():
             cur.execute(SELECT_QUERY)
+            start_time = time.time()
             while rows := cur.fetchmany(size=BATCH_SIZE):
                 for row in rows:
                     row_embedding = np.array(row[2])
                     sentence_embedding = sentence_distance["embedding"]
 
                     # Time for Manhattan distance
-                    start_time = time.time()
                     manhattan_dist = manhattan_distance(row_embedding, sentence_embedding)
-                    end_time = time.time()
-                    manhattan_times.append(end_time - start_time)
-
-                    # Time for Euclidean distance
-                    start_time = time.time()
-                    euclidean_dist = euclidean_distance(row_embedding, sentence_embedding)
-                    end_time = time.time()
-                    euclidean_times.append(end_time - start_time)
-
-                    # Time for Cosine distance
-                    start_time = time.time()
-                    cosine_dist = cosine_distance(row_embedding, sentence_embedding)
-                    end_time = time.time()
-                    cosine_times.append(end_time - start_time)
-
                     sentence_distance["top_manhattan"].append((manhattan_dist, row[1]))
-                    sentence_distance["top_euclidean"].append((euclidean_dist, row[1]))
+            end_time = time.time()
+            manhattan_times.append(end_time - start_time)
+            cur.execute(SELECT_QUERY)
+            start_time = time.time()
+            while rows := cur.fetchmany(size=BATCH_SIZE):
+                for row in rows:
+                    row_embedding = np.array(row[2])
+                    sentence_embedding = sentence_distance["embedding"]
+                    cosine_dist = cosine_distance(row_embedding, sentence_embedding)
                     sentence_distance["top_cosine"].append((cosine_dist, row[1]))
+
+            end_time = time.time()
+            cosine_times.append(end_time - start_time)
+            cur.execute(SELECT_QUERY)
+            start_time = time.time()
+            while rows := cur.fetchmany(size=BATCH_SIZE):
+                for row in rows:
+                    row_embedding = np.array(row[2])
+                    sentence_embedding = sentence_distance["embedding"]
+                    euclidean_dist = euclidean_distance(row_embedding, sentence_embedding)
+                    sentence_distance["top_euclidean"].append((euclidean_dist, row[1]))
+
+            end_time = time.time()
+            euclidean_times.append(end_time - start_time)
+
+
 
     print("\n[RESULTS]")
     for counter, (sentence, sentence_distance) in enumerate(sentences_distances.items()):
