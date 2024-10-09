@@ -8,16 +8,13 @@ SELECT_QUERY = """
 SELECT * FROM sentences;
 """
 
-
 def manhattan_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """Calculate the Manhattan distance between two vectors."""
     return np.sum(np.abs(vector1 - vector2))
 
-
 def euclidean_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """Calculate the Euclidean distance between two vectors."""
     return np.linalg.norm(vector1 - vector2)
-
 
 def cosine_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
     """Calculate the Cosine distance between two vectors."""
@@ -25,7 +22,6 @@ def cosine_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
     norm_a = np.linalg.norm(vector1)
     norm_b = np.linalg.norm(vector2)
     return 1 - (dot_product / (norm_a * norm_b)) if norm_a and norm_b else float("inf")
-
 
 def script_3(conn) -> None:
     print("Script 3 starting.")
@@ -41,33 +37,42 @@ def script_3(conn) -> None:
         for sentence in SENTENCES
     }
 
-    similarity_times = []
+    manhattan_times = []
+    euclidean_times = []
+    cosine_times = []
+
     with conn.cursor() as cur:
         for sentence, sentence_distance in sentences_distances.items():
             cur.execute(SELECT_QUERY)
             while rows := cur.fetchmany(size=BATCH_SIZE):
                 for row in rows:
-                    start_time = time.time()
                     row_embedding = np.array(row[2])
                     sentence_embedding = sentence_distance["embedding"]
-                    manhattan_dist = manhattan_distance(
-                        row_embedding, sentence_embedding
-                    )
-                    euclidean_dist = euclidean_distance(
-                        row_embedding, sentence_embedding
-                    )
+
+                    # Time for Manhattan distance
+                    start_time = time.time()
+                    manhattan_dist = manhattan_distance(row_embedding, sentence_embedding)
+                    end_time = time.time()
+                    manhattan_times.append(end_time - start_time)
+
+                    # Time for Euclidean distance
+                    start_time = time.time()
+                    euclidean_dist = euclidean_distance(row_embedding, sentence_embedding)
+                    end_time = time.time()
+                    euclidean_times.append(end_time - start_time)
+
+                    # Time for Cosine distance
+                    start_time = time.time()
                     cosine_dist = cosine_distance(row_embedding, sentence_embedding)
+                    end_time = time.time()
+                    cosine_times.append(end_time - start_time)
 
                     sentence_distance["top_manhattan"].append((manhattan_dist, row[1]))
                     sentence_distance["top_euclidean"].append((euclidean_dist, row[1]))
                     sentence_distance["top_cosine"].append((cosine_dist, row[1]))
-                    end_time = time.time()
-                    similarity_times.append(end_time - start_time)
 
     print("\n[RESULTS]")
-    for counter, (sentence, sentence_distance) in enumerate(
-        sentences_distances.items()
-    ):
+    for counter, (sentence, sentence_distance) in enumerate(sentences_distances.items()):
         print(f'\n{counter + 1}. "{sentence}"')
 
         sentence_distance["top_manhattan"] = sorted(
@@ -92,18 +97,19 @@ def script_3(conn) -> None:
         for dist, target_sentence in sentence_distance["top_cosine"]:
             print(f'  - "{target_sentence}" with distance {dist:.4f}')
 
-    min_time = np.min(similarity_times)
-    max_time = np.max(similarity_times)
-    avg_time = np.mean(similarity_times)
-    std_dev_time = np.std(similarity_times)
+    def print_time_stats(times, name):
+        min_time = np.min(times)
+        max_time = np.max(times)
+        avg_time = np.mean(times)
+        std_dev_time = np.std(times)
+        print(f"\n{name} Time - Minimum: {min_time:.6f} s, Maximum: {max_time:.6f} s, Average: {avg_time:.6f} s, Standard Deviation: {std_dev_time:.6f} s")
 
-    print(f"\nMinimum time: {min_time:.6f} seconds")
-    print(f"Maximum time: {max_time:.6f} seconds")
-    print(f"Average time: {avg_time:.6f} seconds")
-    print(f"Standard Deviation: {std_dev_time:.6f} seconds")
+    # Print stats for each distance type
+    print_time_stats(manhattan_times, "Manhattan")
+    print_time_stats(euclidean_times, "Euclidean")
+    print_time_stats(cosine_times, "Cosine")
 
     print("\nScript 3 finished successfully.\n")
-
 
 if __name__ == "__main__":
     connect(script_3)
