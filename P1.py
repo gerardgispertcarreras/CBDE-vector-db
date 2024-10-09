@@ -15,8 +15,8 @@ WHERE id = %s
 """
 
 
-def script_2(conn):
-    print("Script 2 starting.")
+def script_P1(conn):
+    print("Script P1 starting.")
 
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
     with conn.cursor() as cur_select:
@@ -50,8 +50,8 @@ def script_2(conn):
     print(f"Average time: {avg_time:.6f} seconds")
     print(f"Standard Deviation: {std_dev_time:.6f} seconds")
 
-    print("\nScript 2 finished successfully.\n")
+    print("\nScript P1 finished successfully.\n")
 
 
 if __name__ == "__main__":
-    connect(script_2)
+    connect(script_P1)

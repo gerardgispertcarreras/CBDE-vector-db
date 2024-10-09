@@ -23,8 +23,8 @@ def cosine_distance(vector1: np.ndarray, vector2: np.ndarray) -> float:
     norm_b = np.linalg.norm(vector2)
     return 1 - (dot_product / (norm_a * norm_b)) if norm_a and norm_b else float("inf")
 
-def script_3(conn) -> None:
-    print("Script 3 starting.")
+def script_P2(conn) -> None:
+    print("Script P2 starting.")
 
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
     sentences_distances = {
@@ -109,7 +109,7 @@ def script_3(conn) -> None:
     print_time_stats(euclidean_times, "Euclidean")
     print_time_stats(cosine_times, "Cosine")
 
-    print("\nScript 3 finished successfully.\n")
+    print("\nScript P2 finished successfully.\n")
 
 if __name__ == "__main__":
-    connect(script_3)
+    connect(script_P2)

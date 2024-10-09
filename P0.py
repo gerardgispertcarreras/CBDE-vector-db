@@ -22,8 +22,8 @@ INSERT INTO sentences VALUES (%s, %s, NULL);
 """
 
 
-def script_1(conn):
-    print("Script 1 starting.")
+def script_P0(conn):
+    print("Script P0 starting.")
 
     df = pd.read_parquet("~/Desktop/CBDE/CBDE-vector-db/book-corpus-3.parquet")
     sub_df = df.sample(n=NUM_SENTENCES, random_state=SEED).reset_index()
@@ -58,8 +58,8 @@ def script_1(conn):
     print(f"Average time: {avg_time:.6f} seconds")
     print(f"Standard Deviation: {std_dev_time:.6f} seconds")
 
-    print("\nScript 1 finished successfully.\n")
+    print("\nScript P0 finished successfully.\n")
 
 
 if __name__ == "__main__":
-    connect(script_1)
+    connect(script_P0)
