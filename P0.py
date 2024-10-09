@@ -2,8 +2,8 @@ import pandas as pd
 import uuid
 import numpy as np
 import time
-from constants import NUM_SENTENCES, SEED
-from connect import connect
+from utils.constants import NUM_SENTENCES, SEED
+from utils.connect import connect
 
 CREATE_TABLE_QUERY = """
 CREATE TABLE sentences (

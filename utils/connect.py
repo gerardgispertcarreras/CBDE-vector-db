@@ -1,6 +1,6 @@
 import psycopg2
 import time
-from config import load_config
+from utils.config import load_config
 
 def connect(func):
     """ Connect to the PostgreSQL database server """

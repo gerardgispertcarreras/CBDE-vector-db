@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
-from connect import connect
-from constants import BATCH_SIZE, SENTENCES, NUM_SIMILAR_SENTENCES
+from utils.connect import connect
+from utils.constants import BATCH_SIZE, SENTENCES, NUM_SIMILAR_SENTENCES
 import time
 
 SELECT_QUERY = """

@@ -1,8 +1,8 @@
 import time
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from constants import BATCH_SIZE, NUM_SENTENCES
-from connect import connect
+from utils.constants import BATCH_SIZE, NUM_SENTENCES
+from utils.connect import connect
 
 SELECT_QUERY = """
 SELECT * FROM sentences;
